@@ -732,9 +732,16 @@ namespace BusquedaYOrdenamientoDemo
             return medido;
         }
 
-        var resultadoQuickSort = ObtenerOMedir(ALG_QUICKSORT, OrdenarPorQuickSort);
-        var resultadoInsercion = ObtenerOMedir(ALG_INSERCION, OrdenarPorInsercion);
-        var resultadoBurbuja = ObtenerOMedir(ALG_BURBUJA, OrdenarPorBurbuja);
+        var algoritmosEsperados = new (string nombre, Action<int[]> algoritmo)[]
+        {
+            (ALG_QUICKSORT, OrdenarPorQuickSort),
+            (ALG_INSERCION, OrdenarPorInsercion),
+            (ALG_BURBUJA, OrdenarPorBurbuja)
+        };
+
+        var resultadosGarantizados = algoritmosEsperados
+            .Select(definicion => ObtenerOMedir(definicion.nombre, definicion.algoritmo))
+            .ToArray();
 
         listaResultados.BeginUpdate();
         try
@@ -747,9 +754,10 @@ namespace BusquedaYOrdenamientoDemo
             }
 
             listaResultados.Items.Clear();
-            AgregarFilaResultado(resultadoQuickSort);
-            AgregarFilaResultado(resultadoInsercion);
-            AgregarFilaResultado(resultadoBurbuja);
+            foreach (var resultado in resultadosGarantizados)
+            {
+                AgregarFilaResultado(resultado);
+            }
         }
         finally
         {
@@ -757,8 +765,7 @@ namespace BusquedaYOrdenamientoDemo
             listaResultados.Refresh();
         }
 
-        var resultadosComparados = new[] { resultadoQuickSort, resultadoInsercion, resultadoBurbuja };
-        var resultadoGanador = resultadosComparados.OrderBy(r => r.tiempo).First();
+        var resultadoGanador = resultadosGarantizados.OrderBy(r => r.tiempo).First();
 
         foreach (ListViewItem fila in listaResultados.Items)
         {
