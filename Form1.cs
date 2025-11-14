@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -789,13 +790,38 @@ namespace BusquedaYOrdenamientoDemo
     {
         // ----- INICIO: AgregarFilaResultado -----
         var fila = new ListViewItem(resultado.nombre);
-        fila.SubItems.Add(resultado.tiempo.TotalMilliseconds.ToString("N3"));
-        fila.SubItems.Add(resultado.tiempo.TotalMilliseconds >= 1000 ? resultado.tiempo.TotalSeconds.ToString("N3")
-                                                                     : "-");
-        fila.SubItems.Add(resultado.ticks.ToString("N0"));
+        var cultura = CultureInfo.CurrentCulture;
+
+        string textoMilisegundos = resultado.tiempo.TotalMilliseconds >= 1
+            ? resultado.tiempo.TotalMilliseconds.ToString("N3", cultura)
+            : FormatearTiempoSubSegundo(resultado.tiempo.TotalMilliseconds, cultura);
+
+        string textoSegundos = resultado.tiempo.TotalSeconds >= 1
+            ? resultado.tiempo.TotalSeconds.ToString("N3", cultura)
+            : FormatearTiempoSubSegundo(resultado.tiempo.TotalSeconds, cultura);
+
+        fila.SubItems.Add(textoMilisegundos);
+        fila.SubItems.Add(textoSegundos);
+        fila.SubItems.Add(resultado.ticks.ToString("N0", cultura));
         listaResultados.Items.Add(fila);
 
         // ----- FIN: AgregarFilaResultado -----
+    }
+
+    private static string FormatearTiempoSubSegundo(double valor, CultureInfo cultura)
+    {
+        if (valor <= 0)
+        {
+            return "0";
+        }
+
+        const double umbral = 0.000001; // 1 micro unidad en la escala actual
+        if (valor < umbral)
+        {
+            return "<" + umbral.ToString("0.######", cultura);
+        }
+
+        return valor.ToString("0.######", cultura);
     }
 
     /// <summary>
