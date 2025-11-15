@@ -719,64 +719,33 @@ namespace BusquedaYOrdenamientoDemo
         System.Collections.Generic.List<(string nombre, TimeSpan tiempo, long ticks)> resultados, bool mostrarMensaje)
     {
         // ----- INICIO: RenderizarResultados -----
-        void ActualizarListaOriginal(string nombreAnterior,
-                                     (string nombre, TimeSpan tiempo, long ticks) actualizado)
+        static string Normalizar(string? s)
+            => string.IsNullOrWhiteSpace(s) ? string.Empty : s.Trim();
+
+        (string nombre, TimeSpan tiempo, long ticks) BuscarOMedir(
+            string esperado, Action<int[]> algoritmo)
         {
-            if (string.IsNullOrWhiteSpace(nombreAnterior))
+            string clave = Normalizar(esperado);
+            var encontrado = resultados.FirstOrDefault(r =>
+                string.Equals(Normalizar(r.nombre), clave, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(encontrado.nombre))
             {
-                return;
+                // Normaliza el nombre al esperado por si viene con variantes
+                return (esperado, encontrado.tiempo, encontrado.ticks);
             }
 
-            string nombreNormalizado = nombreAnterior.Trim();
-            for (int indice = 0; indice < resultados.Count; indice++)
-            {
-                var actual = resultados[indice];
-                string etiquetaActual = (actual.nombre ?? string.Empty).Trim();
-                if (string.Equals(etiquetaActual, nombreNormalizado, StringComparison.OrdinalIgnoreCase))
-                {
-                    resultados[indice] = actualizado;
-                    break;
-                }
-            }
+            var medido = MedirAlgoritmo(esperado, algoritmo);
+            resultados.Add(medido);
+            return medido;
         }
 
-        var algoritmosEsperados = new (string nombre, Action<int[]> algoritmo)[]
-        {
-            (ALG_QUICKSORT, OrdenarPorQuickSort),
-            (ALG_INSERCION, OrdenarPorInsercion),
-            (ALG_BURBUJA, OrdenarPorBurbuja)
-        };
+        // Construimos SIEMPRE las tres tuplas en orden fijo.
+        var resultadoQuickSort = BuscarOMedir(ALG_QUICKSORT, OrdenarPorQuickSort);
+        var resultadoInsercion = BuscarOMedir(ALG_INSERCION, OrdenarPorInsercion);
+        var resultadoBurbuja   = BuscarOMedir(ALG_BURBUJA,   OrdenarPorBurbuja);
 
-        var resultadosNormalizados = new Dictionary<string, (string nombre, TimeSpan tiempo, long ticks)>(
-            StringComparer.OrdinalIgnoreCase);
-        foreach (var resultado in resultados.Where(r => !string.IsNullOrWhiteSpace(r.nombre)))
-        {
-            resultadosNormalizados[resultado.nombre.Trim()] = resultado;
-        }
-
-        var listaGarantizada = new List<(string nombre, TimeSpan tiempo, long ticks)>(algoritmosEsperados.Length);
-
-        foreach (var (nombreAlgoritmo, algoritmo) in algoritmosEsperados)
-        {
-            string clave = nombreAlgoritmo.Trim();
-            if (!resultadosNormalizados.TryGetValue(clave, out var existente))
-            {
-                existente = MedirAlgoritmo(nombreAlgoritmo, algoritmo);
-                resultados.Add(existente);
-                resultadosNormalizados[clave] = existente;
-            }
-            else if (!string.Equals(existente.nombre, nombreAlgoritmo, StringComparison.Ordinal))
-            {
-                var corregido = (nombreAlgoritmo, existente.tiempo, existente.ticks);
-                resultadosNormalizados[clave] = corregido;
-                ActualizarListaOriginal(existente.nombre, corregido);
-                existente = corregido;
-            }
-
-            listaGarantizada.Add(existente);
-        }
-
-        var resultadosGarantizados = listaGarantizada.ToArray();
+        var resultadosGarantizados = new[] { resultadoQuickSort, resultadoInsercion, resultadoBurbuja };
 
         listaResultados.BeginUpdate();
         try
