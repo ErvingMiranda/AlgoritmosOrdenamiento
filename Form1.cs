@@ -804,7 +804,7 @@ namespace BusquedaYOrdenamientoDemo
 
         foreach (ListViewItem fila in listaResultados.Items)
         {
-            if (string.Equals(fila.Text, resultadoGanador.nombre, StringComparison.Ordinal))
+            if (string.Equals(fila.Tag as string, resultadoGanador.nombre, StringComparison.Ordinal))
             {
                 fila.BackColor = Color.FromArgb(230, 255, 230);
                 fila.EnsureVisible();
@@ -836,7 +836,7 @@ namespace BusquedaYOrdenamientoDemo
             return;
         }
 
-        var fila = new ListViewItem(resultado.nombre);
+        var fila = new ListViewItem(resultado.nombre) { Tag = resultado.nombre };
         var cultura = CultureInfo.CurrentCulture;
 
         string textoMilisegundos = resultado.tiempo.TotalMilliseconds >= 1
