@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -718,18 +719,25 @@ namespace BusquedaYOrdenamientoDemo
         System.Collections.Generic.List<(string nombre, TimeSpan tiempo, long ticks)> resultados, bool mostrarMensaje)
     {
         // ----- INICIO: RenderizarResultados -----
-        (string nombre, TimeSpan tiempo, long ticks) ObtenerOMedir(string nombre, Action<int[]> algoritmo)
+        void ActualizarListaOriginal(string nombreAnterior,
+                                     (string nombre, TimeSpan tiempo, long ticks) actualizado)
         {
-            var encontrado = resultados.FirstOrDefault(r => string.Equals(r.nombre, nombre, StringComparison.Ordinal));
-
-            if (!string.IsNullOrEmpty(encontrado.nombre))
+            if (string.IsNullOrWhiteSpace(nombreAnterior))
             {
-                return encontrado;
+                return;
             }
 
-            var medido = MedirAlgoritmo(nombre, algoritmo);
-            resultados.Add(medido);
-            return medido;
+            string nombreNormalizado = nombreAnterior.Trim();
+            for (int indice = 0; indice < resultados.Count; indice++)
+            {
+                var actual = resultados[indice];
+                string etiquetaActual = (actual.nombre ?? string.Empty).Trim();
+                if (string.Equals(etiquetaActual, nombreNormalizado, StringComparison.OrdinalIgnoreCase))
+                {
+                    resultados[indice] = actualizado;
+                    break;
+                }
+            }
         }
 
         var algoritmosEsperados = new (string nombre, Action<int[]> algoritmo)[]
@@ -739,9 +747,36 @@ namespace BusquedaYOrdenamientoDemo
             (ALG_BURBUJA, OrdenarPorBurbuja)
         };
 
-        var resultadosGarantizados = algoritmosEsperados
-            .Select(definicion => ObtenerOMedir(definicion.nombre, definicion.algoritmo))
-            .ToArray();
+        var resultadosNormalizados = new Dictionary<string, (string nombre, TimeSpan tiempo, long ticks)>(
+            StringComparer.OrdinalIgnoreCase);
+        foreach (var resultado in resultados.Where(r => !string.IsNullOrWhiteSpace(r.nombre)))
+        {
+            resultadosNormalizados[resultado.nombre.Trim()] = resultado;
+        }
+
+        var listaGarantizada = new List<(string nombre, TimeSpan tiempo, long ticks)>(algoritmosEsperados.Length);
+
+        foreach (var (nombreAlgoritmo, algoritmo) in algoritmosEsperados)
+        {
+            string clave = nombreAlgoritmo.Trim();
+            if (!resultadosNormalizados.TryGetValue(clave, out var existente))
+            {
+                existente = MedirAlgoritmo(nombreAlgoritmo, algoritmo);
+                resultados.Add(existente);
+                resultadosNormalizados[clave] = existente;
+            }
+            else if (!string.Equals(existente.nombre, nombreAlgoritmo, StringComparison.Ordinal))
+            {
+                var corregido = (nombreAlgoritmo, existente.tiempo, existente.ticks);
+                resultadosNormalizados[clave] = corregido;
+                ActualizarListaOriginal(existente.nombre, corregido);
+                existente = corregido;
+            }
+
+            listaGarantizada.Add(existente);
+        }
+
+        var resultadosGarantizados = listaGarantizada.ToArray();
 
         listaResultados.BeginUpdate();
         try
@@ -793,9 +828,14 @@ namespace BusquedaYOrdenamientoDemo
         // ----- FIN: RenderizarResultados -----
     }
 
-    private void AgregarFilaResultado((string nombre, TimeSpan tiempo, long ticks)resultado)
+    private void AgregarFilaResultado((string nombre, TimeSpan tiempo, long ticks) resultado)
     {
         // ----- INICIO: AgregarFilaResultado -----
+        if (string.IsNullOrWhiteSpace(resultado.nombre))
+        {
+            return;
+        }
+
         var fila = new ListViewItem(resultado.nombre);
         var cultura = CultureInfo.CurrentCulture;
 
