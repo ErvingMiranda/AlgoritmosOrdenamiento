@@ -1,42 +1,40 @@
-# Algoritmos de Ordenamiento en C#
+# Algoritmos de Ordenamiento (WinForms, C#)
 
-Este proyecto contiene implementaciones de distintos algoritmos de ordenamiento en C#, con fines principalmente educativos.  
-La idea es poder comparar su funcionamiento, complejidad temporal y espacial, así como entender en qué casos conviene usar cada uno.
+Aplicación Windows Forms (.NET 8) para visualizar y comparar algoritmos de ordenamiento con fines educativos. Permite generar datos aleatorios, ver una animación simultánea de los algoritmos y comparar tiempos de ejecución en milisegundos, segundos y ticks.
 
-> Nota: Siéntete libre de adaptar este README según el contenido real de tu repositorio (por ejemplo, agregando o quitando algoritmos, clases o proyectos).
-
----
-
-## Contenido del repositorio
-
-Dependiendo de cómo esté organizado tu código, aquí puedes listar los algoritmos implementados. Por ejemplo:
-
-- **Burbuja (Bubble Sort)**
-- **Selección (Selection Sort)**
-- **Inserción (Insertion Sort)**
-- **Merge Sort**
-- **Quick Sort**
-- **Heap Sort**
-- **Shell Sort**
-- Otros que desees agregar...
-
-Cada algoritmo puede estar implementado en su propia clase o archivo, de forma que sea fácil de leer y comparar.
+— Equipo: NullException · Tarea para la clase de Programación Estructurada —
 
 ---
 
-## Objetivos del proyecto
+## Qué hay en este repositorio
 
-- Servir como **material de estudio** para entender cómo funcionan los algoritmos de ordenamiento.
-- Permitir **comparar tiempos de ejecución** entre diferentes métodos.
-- Mostrar ejemplos de **implementaciones en C#**, con código limpio y comentado.
-- Servir como base para **experimentos** (por ejemplo, cambiar el tipo de datos, tamaños de listas, orden inicial, etc.).
+- Interfaz WinForms en `BusquedaYOrdenamientoDemo` con el formulario principal `Form1` y una ventana de ayuda `HelpForm`.
+- Algoritmos implementados y comparados:
+  - Burbuja (Bubble Sort)
+  - Inserción (Insertion Sort)
+  - QuickSort
+- Visualización en tiempo real con resaltado de comparaciones/intercambios y control de velocidad.
+- Modo rápido sin animación para mediciones instantáneas.
+- Tabla de resultados con ganador resaltado y columnas: Algoritmo, ms, s, ticks.
+
+Archivos principales del proyecto:
+
+- `AlgoritmosOrdenamiento.sln` (solución)
+- `AlgoritmosOrdenamiento.csproj` (WinForms, `net8.0-windows`)
+- `Form1.cs`, `Form1.Designer.cs`, `Form1.resx` (UI principal y lógica)
+- `HelpForm.cs` (ayuda/guía de uso y glosario)
+- `Program.cs` (punto de entrada)
+
+Namespace: `BusquedaYOrdenamientoDemo`.
 
 ---
 
 ## Requisitos
 
-- **.NET SDK** (por ejemplo, .NET 6 o .NET 8)  
-  Puedes verificar la versión instalada con:
+- Windows 10/11 (WinForms, destino `net8.0-windows`).
+- .NET 8 SDK.
+
+Verifica la versión instalada:
 
 ```bash
 dotnet --version
@@ -44,149 +42,62 @@ dotnet --version
 
 ---
 
-## Cómo ejecutar el proyecto
+## Cómo ejecutar
 
-1. Clona este repositorio:
+Opción A — Visual Studio (recomendado en Windows):
+- Abre `AlgoritmosOrdenamiento.sln` y presiona Ejecutar (F5).
 
-```bash
-git clone https://github.com/ErvingMiranda/AlgoritmosOrdenamiento.git
-```
-
-2. Entra en la carpeta del proyecto:
-
-```bash
-cd AlgoritmosOrdenamiento
-```
-
-3. Restaura dependencias (si aplica) y compila:
-
+Opción B — CLI de .NET (en Windows):
 ```bash
 dotnet build
-```
-
-4. Ejecuta el proyecto (ajusta el nombre del proyecto si es necesario):
-
-```bash
 dotnet run
 ```
 
-Si el proyecto está organizado como solución (`.sln`) con varios proyectos, puedes ejecutar uno en específico:
-
-```bash
-dotnet run --project ruta/al/proyecto.csproj
-```
+Nota: Al ser WinForms, la ejecución requiere Windows.
 
 ---
 
-## Estructura sugerida del código
+## Uso rápido
 
-Una posible estructura (ajústala a lo que ya tengas):
+- Generar datos: elige la cantidad y pulsa “Generar”.
+- Comparar algoritmos: pulsa “Comparar Algoritmos”.
+  - Visualizar carrera: animación simultánea de Burbuja, Inserción y QuickSort con control de velocidad.
+  - Resultados rápidos: medición instantánea sin animación y visualización del estado final en los paneles.
+- Cancelar: detiene la animación en curso.
+- F11: alterna pantalla completa.
+- “Ayuda”: abre `HelpForm` con recomendaciones y glosario.
 
-```text
-AlgoritmosOrdenamiento/
-├─ Algoritmos/
-│  ├─ BubbleSort.cs
-│  ├─ SelectionSort.cs
-│  ├─ InsertionSort.cs
-│  ├─ MergeSort.cs
-│  ├─ QuickSort.cs
-│  └─ ...
-├─ Utils/
-│  └─ ArrayGenerator.cs
-├─ Program.cs
-└─ README.md
-```
-
-- `Algoritmos/` contiene las implementaciones de los distintos algoritmos.
-- `Utils/` puede contener generadores de datos, utilidades para medir tiempos, etc.
-- `Program.cs` sirve como punto de entrada para probar los algoritmos.
+Sugerencia: la visualización es más fluida con conjuntos de hasta ~500 elementos.
 
 ---
 
-## Ejemplo de uso (conceptual)
+## Complejidad (implementados)
 
-En tu `Program.cs` podrías tener algo como:
-
-```csharp
-using AlgoritmosOrdenamiento.Algoritmos;
-using AlgoritmosOrdenamiento.Utils;
-
-class Program
-{
-    static void Main(string[] args)
-    {
-        int[] datos = ArrayGenerator.GenerarAleatorio(1000, 0, 10000);
-
-        int[] copiaBubble = (int[])datos.Clone();
-        int[] copiaQuick = (int[])datos.Clone();
-
-        Console.WriteLine("Ordenando con Bubble Sort...");
-        BubbleSort.Ordenar(copiaBubble);
-
-        Console.WriteLine("Ordenando con Quick Sort...");
-        QuickSort.Ordenar(copiaQuick);
-
-        // Aquí podrías medir tiempos, imprimir resultados, etc.
-    }
-}
-```
-
-> Ajusta los nombres de espacios de nombres (`namespaces`) y clases según tu implementación real.
+- Burbuja: mejor $O(n)$, promedio/peor $O(n^2)$; estable; in-place.
+- Inserción: mejor $O(n)$, promedio/peor $O(n^2)$; estable; in-place.
+- QuickSort: promedio $O(n\log n)$, peor $O(n^2)$; no estable; in-place.
 
 ---
 
-## Complejidades (resumen)
+## Tecnologías
 
-Tabla rápida de complejidad temporal promedio y en el peor caso:
-
-| Algoritmo       | Mejor caso   | Promedio      | Peor caso      | Estable | En memoria (in-place) |
-|-----------------|--------------|---------------|----------------|---------|------------------------|
-| Bubble Sort     | $O(n)$       | $O(n^2)$      | $O(n^2)$       | Sí      | Sí                     |
-| Insertion Sort  | $O(n)$       | $O(n^2)$      | $O(n^2)$       | Sí      | Sí                     |
-| Selection Sort  | $O(n^2)$     | $O(n^2)$      | $O(n^2)$       | No      | Sí                     |
-| Merge Sort      | $O(n \log n)$| $O(n \log n)$ | $O(n \log n)$  | Sí      | No (usa memoria extra) |
-| Quick Sort      | $O(n \log n)$| $O(n \log n)$ | $O(n^2)$       | No      | Sí                     |
-| Heap Sort       | $O(n \log n)$| $O(n \log n)$ | $O(n \log n)$  | No      | Sí                     |
-
-Esta tabla es puramente informativa y puedes adaptarla según los algoritmos realmente implementados.
+- C# 12, .NET 8, Windows Forms.
+- Renderizado de barras con `System.Drawing` y control de FPS/operaciones para animación.
 
 ---
 
-## Contribuciones
+## Equipo y créditos
 
-Si quieres mejorar este proyecto:
-
-1. Haz un fork del repositorio.
-2. Crea una rama para tu cambio:
-
-```bash
-git checkout -b mejora-algoritmo-x
-```
-
-3. Realiza tus cambios y haz commit:
-
-```bash
-git commit -am "Mejora implementación de Quick Sort"
-```
-
-4. Sube tu rama y abre un Pull Request.
+- Equipo: NullException.
+- Curso: Programación Estructurada.
+- Autores:
+  - [Erving Miranda](https://github.com/ErvingMiranda)
+  - [Osman Cerpas](https://github.com/Jatca08)
+  - [Mery López](https://github.com/nohemy24)
+  - [Fernando Zapata](https://github.com/Faza202)
 
 ---
 
 ## Licencia
 
-Especifica aquí la licencia de tu proyecto (por ejemplo, MIT, Apache 2.0, etc.).  
-Si aún no has elegido una, una opción común es MIT:
-
-```text
-Este proyecto está licenciado bajo los términos de la licencia MIT.
-```
-
----
-
-## Autor
-
-- [Erving Miranda](https://github.com/ErvingMiranda)
-- [Osman Cerpas](https://github.com/Jatca08)
-- [Mery López](https://github.com/nohemy24)
-- [Fernando Zapata](https://github.com/Faza202)
+Sin licencia específica declarada en el repositorio.
